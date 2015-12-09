@@ -9,8 +9,8 @@
 #
 # Search by name and return an array of results
 # > a = ABNSearch::Client.new("your-guid")
-# > result = a.search_by_name("Sony", {states:['NSW', 'VIC']})
-# > another_result = a.search_by_name("Sony", {postcode:2040})
+# > result = a.search_by_name("Sony", states: ["NSW", "VIC"])
+# > another_result = a.search_by_name("Sony", postcode: 2040)
 #
 
 require "savon"
