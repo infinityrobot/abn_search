@@ -4,9 +4,10 @@
 module ABNSearch
   class Entity
     attr_accessor :acn, :abn, :abn_current, :entity_type, :status, :main_name,
-                  :trading_name, :legal_name, :legal_name2, :other_trading_name,
-                  :active_from_date, :address_state_code, :address_post_code,
-                  :address_from_date, :last_updated, :gst_from_date
+                  :trading_name, :business_name, :legal_name, :legal_name2,
+                  :other_trading_name, :active_from_date, :address_state_code,
+                  :address_post_code, :address_from_date, :last_updated,
+                  :gst_from_date
 
     # Initialize an ABN object
     #
@@ -48,8 +49,8 @@ module ABNSearch
     #
     # @return [String] business name
     def name
-      @trading_name || @other_trading_name || @main_name || @legal_name ||
-        @legal_name2 || "Name unknown"
+      @trading_name || @business_name || @other_trading_name || @main_name ||
+        @legal_name || @legal_name2 || "Name unknown"
     end
 
     # Test to see if an ABN is valid
@@ -141,6 +142,7 @@ module ABNSearch
       @status             = body[:entity_status][:entity_status_code] rescue nil
       @main_name          = body[:main_name][:organisation_name] rescue nil
       @trading_name       = body[:main_trading_name][:organisation_name] rescue nil
+      @business_name      = body[:business_name][:organisation_name] rescue nil
       @legal_name         = "#{body[:legal_name][:given_name]} #{body[:legal_name][:family_name]}" rescue nil
       @legal_name2        = body[:full_name] rescue nil
       @other_trading_name = body[:other_trading_name][:organisation_name] rescue nil
