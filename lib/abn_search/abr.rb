@@ -86,43 +86,48 @@ module ABNSearch
     # @option options [String] :postcode - a postcode to filter the search by
     # @param [String] postcode - the postcode you wish to filter by
     # TODO: clean up this method
-    def search_by_name(name, options={})
+    def self.search_by_name(name, options = {})
       fail ArgumentError, "No search string provided" unless name.is_a?(String)
       check_guid
 
       options[:states] ||= %w(NSW QLD VIC SA WA TAS ACT NT)
-      options[:postcode] ||= "ALL"
       client = Savon.client(@@client_options)
       request = {
         externalNameSearch: {
-          authenticationGuid: @@guid, name: name,
+          authenticationGuid: @@guid,
+          name: name,
           filters: {
             nameType: {
-              tradingName: "Y", legalName: "Y"
+              tradingName: options[:trading_name] || "Y",
+              legalName: options[:legal_name] || "Y",
+              businessName: options[:business_name] || "Y"
             },
             postcode: options[:postcode],
-            "stateCode": {
-              "QLD": options[:states].include?("QLD") ? "Y" : "N",
-              "NT": options[:states].include?("NT") ? "Y" : "N",
-              "SA": options[:states].include?("SA") ? "Y" : "N",
-              "WA": options[:states].include?("WA") ? "Y" : "N",
-              "VIC": options[:states].include?("VIC") ? "Y" : "N",
-              "ACT": options[:states].include?("ACT") ? "Y" : "N",
-              "TAS": options[:states].include?("TAS") ? "Y" : "N",
-              "NSW": options[:states].include?("NSW") ? "Y" : "N"
+            stateCode: {
+              NSW: options[:states].include?("NSW") ? "Y" : "N",
+              SA: options[:states].include?("SA") ? "Y" : "N",
+              ACT: options[:states].include?("ACT") ? "Y" : "N",
+              VIC: options[:states].include?("VIC") ? "Y" : "N",
+              WA: options[:states].include?("WA") ? "Y" : "N",
+              NT: options[:states].include?("NT") ? "Y" : "N",
+              QLD: options[:states].include?("QLD") ? "Y" : "N",
+              TAS: options[:states].include?("TAS") ? "Y" : "N"
             }
-          }
+          },
+          searchWidth: options[:search_width] || "Typical",
+          minimumScore: options[:minimum_score] || 50,
+          maxSearchResults: options[:max_search_results] || 10
         },
         authenticationGuid: @@guid
       }
 
-      response = client.call(:abr_search_by_name, message: request)
-      response_body = response.body[:abr_search_by_name_response]\
-                      [:abr_payload_search_results][:response]
-      results = response_body[:search_results_list]
+      response = client.call(:abr_search_by_name_advanced2012, message: request)
+      body = response.body[:abr_search_by_name_advanced2012_response]\
+             [:abr_payload_search_results][:response]
+      results = body[:search_results_list]
 
       if results.nil?
-        fail "Exception: #{response_body[:exception][:exception_description]}"
+        fail "Exception: #{body[:exception][:exception_description]}"
       end
 
       abns = []
