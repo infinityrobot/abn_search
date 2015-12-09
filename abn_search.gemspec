@@ -21,5 +21,6 @@ Gem::Specification.new do |s|
   s.add_dependency "nokogiri", "~> 1.6"
   s.add_development_dependency "yard"
   s.add_development_dependency "rspec"
+  s.add_development_dependency "rspec-core"
   s.add_development_dependency "dotenv"
 end
