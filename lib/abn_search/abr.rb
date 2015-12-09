@@ -33,7 +33,7 @@ module ABNSearch
     # @option options [String] :proxy Proxy URL string if required
     # @return [ABNSearch]
     #
-    def initialize(guid, options = {})
+    def initialize(guid = ENV["ABN_LOOKUP_GUID"], options = {})
       @@guid = guid
       @@proxy = options[:proxy] || nil
       @@client_options = { wsdl: ENDPOINT }
