@@ -30,9 +30,7 @@ module ABNSearch
     #
     # @return [self]
     def update_from_abr!
-      # local cache
       abr_detail = ABNSearch::Client.search(@abn)
-      # parse this stuff
       process_raw_abr_detail(abr_detail)
       self
     end
@@ -41,9 +39,7 @@ module ABNSearch
     #
     # @return [self]
     def update_from_abr_using_acn!
-      # local cache
       abr_detail = ABNSearch::Client.search_by_acn(@acn)
-      # parse this stuff
       process_raw_abr_detail(abr_detail)
       self
     end
