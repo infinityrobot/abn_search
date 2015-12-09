@@ -18,7 +18,11 @@ require "savon"
 module ABNSearch
   class Client
     ENDPOINT = "http://www.abn.business.gov.au/abrxmlsearch/ABRXMLSearch.asmx?WSDL"
-    @@errors = []
+
+    @@errors          = []
+    @@guid            = ENV["ABN_LOOKUP_GUID"] || nil
+    @@proxy           = nil
+    @@client_options  = {}
 
     attr_accessor :errors, :guid, :proxy, :client_options
 
