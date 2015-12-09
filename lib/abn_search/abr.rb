@@ -148,11 +148,7 @@ module ABNSearch
       true
     end
 
-    #######
-    private
-    #######
-
-    def self.validate_response(response,expected_first_symbol)
+    def self.validate_response(response, expected_first_symbol)
       if response.body[expected_first_symbol][:abr_payload_search_results]\
                   [:response][:business_entity201408].nil?
         return {
