@@ -128,7 +128,7 @@ module ABNSearch
 
       abns = []
       results[:search_results_record].each do |r|
-        abns << ABNSearch::Entity.new(abr_detail: r)
+        abns << ABNSearch::Entity.new(abr_detail: r).update_from_abr!
       end
       abns
     end
