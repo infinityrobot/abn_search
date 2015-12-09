@@ -51,13 +51,13 @@ module ABNSearch
       check_guid
 
       client = Savon.client(@@client_options)
-      response = client.call(:abr_search_by_asic,
+      response = client.call(:search_by_asi_cv201408,
                              message: { authenticationGuid: @@guid,
                                         searchString: acn.delete(" "),
                                         includeHistoricalDetails: "N"
                                       })
 
-      validate_response(response, :abr_search_by_asic_response)
+      validate_response(response, :search_by_asi_cv201408_response)
     end
 
     # Performs an ABR search by ABN
