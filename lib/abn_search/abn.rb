@@ -3,25 +3,10 @@
 #
 module ABNSearch
   class Entity
-
-    @acn                = nil
-    @abn                = nil
-    @abn_current        = nil
-    @entity_type        = nil
-    @status             = nil
-    @main_name          = nil
-    @trading_name       = nil
-    @legal_name         = nil
-    @legal_name2        = nil
-    @other_trading_name = nil
-    @active_from_date   = nil
-    @address_state_code = nil
-    @address_post_code  = nil
-    @address_from_date  = nil
-    @last_updated       = nil
-    @gst_from_date      = nil
-
-    attr_accessor :acn, :abn, :abn_current, :entity_type, :status, :main_name, :trading_name, :legal_name, :legal_name2, :other_trading_name, :active_from_date, :address_state_code, :address_post_code, :address_from_date, :last_updated, :gst_from_date
+    attr_accessor :acn, :abn, :abn_current, :entity_type, :status, :main_name,
+                  :trading_name, :legal_name, :legal_name2, :other_trading_name,
+                  :active_from_date, :address_state_code, :address_post_code,
+                  :address_from_date, :last_updated, :gst_from_date
 
     # Initialize an ABN object
     #
@@ -30,12 +15,14 @@ module ABNSearch
     # @option options [String] :acn an Australian Company Number
     # @option options [Hash] :abr_detail raw output from the ABR
     # @return [ABNSearch::Entity] an instance of ABNSearch::Entity is returned
-    def initialize(options={})
+    def initialize(options = {})
       # try to mash the input into something usable
-      @abn        = options[:abn].to_s.gsub(/\s+/,"").rjust(11,"0") unless options[:abn] == nil
-      @acn        = options[:acn].to_s.gsub(/\s+/,"").rjust(9,"0") unless options[:acn] == nil
+      @abn = strip_rjust(options[:abn], 11) unless options[:abn].nil?
+      @acn = strip_rjust(options[:acn], 9) unless options[:acn].nil?
 
-      process_raw_abr_detail({result: :success, payload: options[:abr_detail]}) unless options[:abr_detail].nil?
+      unless options[:abr_detail].nil?
+        process_raw_abr_detail(result: :success, payload: options[:abr_detail])
+      end
       self
     end
 
@@ -65,7 +52,8 @@ module ABNSearch
     #
     # @return [String] business name
     def name
-      @trading_name || @other_trading_name || @main_name || @legal_name || @legal_name2 || 'Name unknown'
+      @trading_name || @other_trading_name || @main_name || @legal_name ||
+        @legal_name2 || "Name unknown"
     end
 
     # Test to see if an ABN is valid
@@ -74,10 +62,10 @@ module ABNSearch
     def valid?
       return false unless @abn.is_a?(String)
       return false if (@abn =~ /^[0-9]{11}$/).nil?
-      weighting = [10,1,3,5,7,9,11,13,15,17,19]
+      weighting = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
       chksum = 0
       (0..10).each do |d|
-        chksum += ( @abn[d].to_i - (d.zero? ? 1 : 0) ) * weighting[d]
+        chksum += (@abn[d].to_i - (d.zero? ? 1 : 0)) * weighting[d]
       end
       return (chksum % 89) == 0
     rescue => e
@@ -89,10 +77,10 @@ module ABNSearch
     # @param abn [String or Integer] the Australian Business Number
     # @return [Boolean]
     def self.valid?(abn)
-       new({abn: abn}).valid?
+      new(abn: abn).valid?
     rescue => e
-     puts "Error: #{e.class}\n#{e.backtrace.join("\n")}"
-     return false
+      puts "Error: #{e.class}\n#{e.backtrace.join("\n")}"
+      return false
     end
 
     # Test to see if the ABN has a valid ACN
@@ -101,7 +89,7 @@ module ABNSearch
     def valid_acn?
       return false unless @acn.is_a?(String)
       return false if (@acn =~ /^[0-9]{9}$/).nil?
-      weighting = [8,7,6,5,4,3,2,1]
+      weighting = [8, 7, 6, 5, 4, 3, 2, 1]
       chksum = 0
       (0..7).each do |d|
         chksum += @acn[d].to_i * weighting[d]
@@ -116,7 +104,7 @@ module ABNSearch
     # @param acn [String or Integer] the Australian Company Number
     # @return [Boolean]
     def self.valid_acn?(acn)
-       new({acn: acn}).valid_acn?
+      new(acn: acn).valid_acn?
     rescue => e
       puts "Error: #{e.class}\n#{e.backtrace.join("\n")}"
       return false
@@ -127,7 +115,7 @@ module ABNSearch
     #
     # @return [String]
     def to_s
-      valid? ? "%s%s %s%s%s %s%s%s %s%s%s" % @abn.split('') : ""
+      valid? ? format("%s%s %s%s%s %s%s%s %s%s%s", @abn.split("")) : ""
     end
 
     # Return a nicely formatted string for valid acns, or
@@ -135,22 +123,19 @@ module ABNSearch
     #
     # @return [String]
     def acn_to_s
-      valid_acn? ? "%s%s%s %s%s%s %s%s%s" % @acn.split('') : ""
+      valid_acn? ? format("%s%s%s %s%s%s %s%s%s", @acn.split("")) : ""
     end
 
-    #######
     private
-    #######
 
     # Parse the ABR detail
     #
     # @return [self]
     def process_raw_abr_detail(abr_detail)
-
       if abr_detail[:result] == :success
         body = abr_detail[:payload]
       else
-        raise "The ABR returned an exception: #{abr_detail[:payload][:exception_description]}"
+        fail "Exception: #{abr_detail[:payload][:exception_description]}"
       end
 
       @acn                = body[:asic_number] rescue nil
@@ -172,5 +157,8 @@ module ABNSearch
       0
     end
 
+    def strip_rjust(string, number)
+      string.to_s.gsub(/\s+/, "").rjust(number, "0")
+    end
   end
 end

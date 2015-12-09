@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require 'abn_search/version'
+$LOAD_PATH.push File.expand_path("../lib", __FILE__)
+require "abn_search/version"
 
 Gem::Specification.new do |s|
   s.name        = "abn_search"
@@ -14,12 +14,12 @@ Gem::Specification.new do |s|
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'savon',       '~> 2.11'
-  s.add_dependency 'nokogiri',    '~> 1.6'
-  s.add_development_dependency 'yard', '~>0'
-  s.add_development_dependency 'rspec', '~>0'
-  s.add_development_dependency 'dotenv', '~>0'
+  s.add_dependency "savon", "~> 2.11"
+  s.add_dependency "nokogiri", "~> 1.6"
+  s.add_development_dependency "yard"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "dotenv"
 end

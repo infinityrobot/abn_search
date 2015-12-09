@@ -13,12 +13,10 @@
 # > another_result = a.search_by_name("Sony", {postcode:2040})
 #
 
-require 'savon'
+require "savon"
 
 module ABNSearch
-
   class Client
-
     ENDPOINT = "http://www.abn.business.gov.au/abrxmlsearch/ABRXMLSearch.asmx?WSDL"
 
     @@errors          = []
@@ -32,7 +30,7 @@ module ABNSearch
     #
     # @param [String] guid - the ABR GUID for Web Services access
     # @param [Hash] options - options detailed below
-    # @option options [String] :proxy Proxy URL string if required (Example: http://user:pass@host.example.com:443)
+    # @option options [String] :proxy Proxy URL string if required
     # @return [ABNSearch]
     #
     def initialize(guid, options = {})
@@ -46,31 +44,38 @@ module ABNSearch
     # Performs an ABR search by ASIC
     #
     # @param [String] acn - the acn you wish to search for
-    # @return [Hash] a hash containing result status (:result) and payload (:payload)
+    # @return [Hash] a hash containing :result & :payload
     def self.search_by_acn(acn)
-      raise ArgumentError, "ACN #{acn} is invalid" unless ABNSearch::Entity.valid_acn?(acn)
+      invalid_error = "ACN #{acn} is invalid"
+      fail ArgumentError, invalid_error unless ABNSearch::Entity.valid_acn?(acn)
       check_guid
 
       client = Savon.client(@@client_options)
+      response = client.call(:abr_search_by_asic,
+                             message: { authenticationGuid: @@guid,
+                                        searchString: acn.delete(" "),
+                                        includeHistoricalDetails: "N"
+                                      })
 
-      response = client.call(:abr_search_by_asic, message: { authenticationGuid: @@guid, searchString: acn.gsub(" ", ""), includeHistoricalDetails: "N" })
-
-      validate_response(response,:abr_search_by_asic_response)
+      validate_response(response, :abr_search_by_asic_response)
     end
 
     # Performs an ABR search by ABN
     #
     # @param [String] abn - the abn you wish to search for
-    # @return [Hash] a hash containing result status (:result) and payload (:payload)
+    # @return [Hash] a hash containing :result & :payload
     def self.search(abn)
-      raise ArgumentError, "ABN #{abn} is invalid" unless ABNSearch::Entity.valid?(abn)
+      invalid_error = "ACN #{abn} is invalid"
+      fail ArgumentError, invalid_error unless ABNSearch::Entity.valid?(abn)
       check_guid
 
       client = Savon.client(@@client_options)
-
-      response = client.call(:abr_search_by_abn, message: { authenticationGuid: @@guid, searchString: abn.gsub(/\s+/, ""), includeHistoricalDetails: "N" })
-
-      validate_response(response,:abr_search_by_abn_response)
+      response = client.call(:abr_search_by_abn,
+                             message: { authenticationGuid: @@guid,
+                                        searchString: abn.gsub(/\s+/, ""),
+                                        includeHistoricalDetails: "N"
+                                      })
+      validate_response(response, :abr_search_by_abn_response)
     end
 
     # Performs an ABR search by name
@@ -78,33 +83,33 @@ module ABNSearch
     # @param [String] name - the search term
     # @param [Hash] options hash - :states, :postcode
     # @option options [Array] :states - a list of states you which to include
-    # @option options [String] :postcode - a postcode to which to confine your Search
+    # @option options [String] :postcode - a postcode to filter the search by
     # @param [String] postcode - the postcode you wish to filter by
     # TODO: clean up this method
     def search_by_name(name, options={})
-      raise ArgumentError, "No search string provided" unless name.is_a?(String)
+      fail ArgumentError, "No search string provided" unless name.is_a?(String)
       check_guid
 
-      options[:states]        ||= ['NSW','QLD','VIC','SA','WA','TAS','ACT','NT']
-      options[:postcode]      ||= 'ALL'
+      options[:states] ||= %w(NSW QLD VIC SA WA TAS ACT NT)
+      options[:postcode] ||= "ALL"
       client = Savon.client(@@client_options)
       request = {
         externalNameSearch: {
           authenticationGuid: @@guid, name: name,
           filters: {
             nameType: {
-              tradingName: 'Y', legalName: 'Y'
+              tradingName: "Y", legalName: "Y"
             },
             postcode: options[:postcode],
-            "stateCode" => {
-              'QLD' => options[:states].include?('QLD') ? "Y" : "N",
-              'NT' => options[:states].include?('NT') ? "Y" : "N",
-              'SA' => options[:states].include?('SA') ? "Y" : "N",
-              'WA' => options[:states].include?('WA') ? "Y" : "N",
-              'VIC' => options[:states].include?('VIC') ? "Y" : "N",
-              'ACT' => options[:states].include?('ACT') ? "Y" : "N",
-              'TAS' => options[:states].include?('TAS') ? "Y" : "N",
-              'NSW' => options[:states].include?('NSW') ? "Y" : "N"
+            "stateCode": {
+              "QLD": options[:states].include?("QLD") ? "Y" : "N",
+              "NT": options[:states].include?("NT") ? "Y" : "N",
+              "SA": options[:states].include?("SA") ? "Y" : "N",
+              "WA": options[:states].include?("WA") ? "Y" : "N",
+              "VIC": options[:states].include?("VIC") ? "Y" : "N",
+              "ACT": options[:states].include?("ACT") ? "Y" : "N",
+              "TAS": options[:states].include?("TAS") ? "Y" : "N",
+              "NSW": options[:states].include?("NSW") ? "Y" : "N"
             }
           }
         },
@@ -112,9 +117,13 @@ module ABNSearch
       }
 
       response = client.call(:abr_search_by_name, message: request)
+      response_body = response.body[:abr_search_by_name_response]\
+                      [:abr_payload_search_results][:response]
+      results = response_body[:search_results_list]
 
-      results = response.body[:abr_search_by_name_response][:abr_payload_search_results][:response][:search_results_list]
-      raise "ABR exception: #{response.body[:abr_search_by_name_response][:abr_payload_search_results][:response][:exception][:exception_description]}" if results.nil?
+      if results.nil?
+        fail "Exception: #{response_body[:exception][:exception_description]}"
+      end
 
       abns = []
 
@@ -122,8 +131,7 @@ module ABNSearch
         abns << ABNSearch::Entity.new(abr_detail: r)
       end
 
-      return abns
-
+      abns
     end
 
     def self.check_guid
@@ -131,7 +139,7 @@ module ABNSearch
     end
 
     def check_guid
-      raise ArgumentError, 'No GUID provided. Please obtain one at - http://www.abr.business.gov.au/Webservices.aspx' if @@guid.nil?
+      fail ArgumentError, "No GUID provided." if @@guid.nil?
       true
     end
 
@@ -152,8 +160,5 @@ module ABNSearch
         }
       end
     end
-
-
   end
-
 end

@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
+require File.expand_path(File.join(File.dirname(__FILE__), "spec_helper"))
 
 describe ABNSearch::Entity do
   describe "valid? class method" do
@@ -32,67 +32,67 @@ describe ABNSearch::Entity do
   describe ABNSearch::Client do
     describe "sanity check" do
       it "should not attempt to query ABR without a GUID" do
-        expect{(good_abns.first.update_from_abr!)}.to raise_error(ArgumentError)
-        expect{(good_acns.first.update_from_abr_using_acn!)}.to raise_error(ArgumentError)
+        e = ArgumentError
+        expect { good_abns.first.update_from_abr! }.to raise_error(e)
+        expect { good_acns.first.update_from_abr_using_acn! }.to raise_error(e)
       end
 
       it "should fail if you use a fake GUID" do
-        ABNSearch::Client.new('fake-guid')
-        expect{(good_abns.first.update_from_abr!)}.to raise_error(RuntimeError)
-        expect{(good_acns.first.update_from_abr_using_acn!)}.to raise_error(RuntimeError)
+        ABNSearch::Client.new("fake-guid")
+        e = RuntimeError
+        expect { good_abns.first.update_from_abr! }.to raise_error(e)
+        expect { good_acns.first.update_from_abr_using_acn! }.to raise_error(e)
       end
 
       it "should work if you use a real GUID and a real ABN" do
-        ABNSearch::Client.new(ENV['ABR_GUID'])
+        ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
         company_name = good_abns.first.update_from_abr!.name
         expect(company_name).to be_a String
         expect(company_name.length).to be > 0
       end
 
       it "should work if you use a real GUID and a real ACN" do
-        ABNSearch::Client.new(ENV['ABR_GUID'])
+        ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
         company_name = good_acns.first.update_from_abr_using_acn!.name
         expect(company_name).to be_a String
         expect(company_name.length).to be > 0
       end
-
     end
   end
 
   def good_abns
     [
-      ABNSearch::Entity.new({abn: 99124391073}),
-      ABNSearch::Entity.new({abn: '99124391073'}),
-      ABNSearch::Entity.new({abn: '99 12 439 10 73 '}),
-      ABNSearch::Entity.new({abn: '46 110 483 513'}),
+      ABNSearch::Entity.new(abn: 99_124_391_073),
+      ABNSearch::Entity.new(abn: "99124391073"),
+      ABNSearch::Entity.new(abn: "99 12 439 10 73 "),
+      ABNSearch::Entity.new(abn: "46 110 483 513")
     ]
   end
 
   def bad_abns
     [
-      ABNSearch::Entity.new({abn: 9912439107}),
-      ABNSearch::Entity.new({abn: 991243910711}),
-      ABNSearch::Entity.new({abn: 'tom'}),
-      ABNSearch::Entity.new({abn: '99124391072'}),
+      ABNSearch::Entity.new(abn: 99_124_391_07),
+      ABNSearch::Entity.new(abn: 99_124_391_071_1),
+      ABNSearch::Entity.new(abn: "abn"),
+      ABNSearch::Entity.new(abn: "99124391072")
     ]
   end
 
   def good_acns
     [
-      ABNSearch::Entity.new({acn: 124391073}),
-      ABNSearch::Entity.new({acn: '124391073'}),
-      ABNSearch::Entity.new({acn: ' 12 439 10 73 '}),
-      ABNSearch::Entity.new({acn: '110 483 513'}),
+      ABNSearch::Entity.new(acn: 124_391_073),
+      ABNSearch::Entity.new(acn: "124391073"),
+      ABNSearch::Entity.new(acn: " 12 439 10 73 "),
+      ABNSearch::Entity.new(acn: "110 483 513")
     ]
   end
 
   def bad_acns
     [
-      ABNSearch::Entity.new({acn: 12439107}),
-      ABNSearch::Entity.new({acn: 1243910711}),
-      ABNSearch::Entity.new({acn: 'tom'}),
-      ABNSearch::Entity.new({acn: '124391072'}),
+      ABNSearch::Entity.new(acn: 124_391_07),
+      ABNSearch::Entity.new(acn: 124_391_071_1),
+      ABNSearch::Entity.new(acn: "acn"),
+      ABNSearch::Entity.new(acn: "124391072")
     ]
   end
-
 end
