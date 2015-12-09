@@ -70,12 +70,12 @@ module ABNSearch
       check_guid
 
       client = Savon.client(@@client_options)
-      response = client.call(:abr_search_by_abn,
+      response = client.call(:search_by_ab_nv201408,
                              message: { authenticationGuid: @@guid,
                                         searchString: abn.gsub(/\s+/, ""),
                                         includeHistoricalDetails: "N"
                                       })
-      validate_response(response, :abr_search_by_abn_response)
+      validate_response(response, :search_by_ab_nv201408_response)
     end
 
     # Performs an ABR search by name
@@ -148,15 +148,19 @@ module ABNSearch
     #######
 
     def self.validate_response(response,expected_first_symbol)
-      if response.body[expected_first_symbol][:abr_payload_search_results][:response][:business_entity].nil?
+      if response.body[expected_first_symbol][:abr_payload_search_results]\
+                  [:response][:business_entity201408].nil?
         return {
           result: :error,
-          payload: response.body[expected_first_symbol][:abr_payload_search_results][:response][:exception]
+          payload: response.body[expected_first_symbol]\
+                   [:abr_payload_search_results][:response][:exception]
         }
       else
         return {
           result: :success,
-          payload: response.body[expected_first_symbol][:abr_payload_search_results][:response][:business_entity]
+          payload: response.body[expected_first_symbol]\
+                   [:abr_payload_search_results][:response]\
+                   [:business_entity201408]
         }
       end
     end
