@@ -18,11 +18,7 @@ require "savon"
 module ABNSearch
   class Client
     ENDPOINT = "http://www.abn.business.gov.au/abrxmlsearch/ABRXMLSearch.asmx?WSDL"
-
-    @@errors          = []
-    @@guid            = nil
-    @@proxy           = nil
-    @@client_options  = {}
+    @@errors = []
 
     attr_accessor :errors, :guid, :proxy, :client_options
 
@@ -131,11 +127,9 @@ module ABNSearch
       end
 
       abns = []
-
       results[:search_results_record].each do |r|
         abns << ABNSearch::Entity.new(abr_detail: r)
       end
-
       abns
     end
 
