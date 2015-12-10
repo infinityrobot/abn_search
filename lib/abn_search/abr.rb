@@ -135,7 +135,7 @@ module ABNSearch
         if r[:abn][:identifier_status] == "Active"
           abns << ABNSearch::Entity.new(abr_detail: r).update_from_abr!
         elsif options[:include_cancelled]
-          abns << ABNSearch::Entity.new(abr_detail: r).update_from_abr!
+          abns << ABNSearch::Entity.new(abr_detail: r)
         end
       end
       abns
