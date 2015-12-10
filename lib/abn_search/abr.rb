@@ -116,7 +116,7 @@ module ABNSearch
           },
           searchWidth: options[:search_width] || "Typical",
           minimumScore: options[:minimum_score] || 50,
-          maxSearchResults: options[:max_search_results] || 10
+          maxSearchResults: options[:max_search_results] || 20
         },
         authenticationGuid: @@guid
       }
