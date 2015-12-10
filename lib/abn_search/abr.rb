@@ -65,7 +65,7 @@ module ABNSearch
     # @param [String] abn - the abn you wish to search for
     # @return [Hash] a hash containing :result & :payload
     def self.search(abn)
-      invalid_error = "ACN #{abn} is invalid"
+      invalid_error = "ABN #{abn} is invalid"
       fail ArgumentError, invalid_error unless ABNSearch::Entity.valid?(abn)
       check_guid
 
