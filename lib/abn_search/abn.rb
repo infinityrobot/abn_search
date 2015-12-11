@@ -7,7 +7,7 @@ module ABNSearch
                   :trading_name, :business_name, :legal_name, :legal_name2,
                   :other_trading_name, :active_from_date, :address_state_code,
                   :address_post_code, :address_from_date, :last_updated,
-                  :gst_from_date
+                  :gst_from_date, :primary_name, :secondary_name
 
     # Initialize an ABN object
     #
@@ -45,12 +45,26 @@ module ABNSearch
       self
     end
 
-    # Choose the most relevant business name
+    # Return array of business names
+    #
+    # @return [array] business names
+    def names
+      [@main_name, @business_name, @trading_name, @other_trading_name,
+       @legal_name, @legal_name2].delete_if(&:nil?)
+    end
+
+    # Select a primary business name
     #
     # @return [String] business name
-    def name
-      @trading_name || @business_name || @other_trading_name || @main_name ||
-        @legal_name || @legal_name2 || "Name unknown"
+    def primary_name
+      names.first
+    end
+
+    # Select a relevant secondary business name
+    #
+    # @return [String] business name
+    def secondary_name
+      names.find { |n| !/#{primary_name}/i.match(n) }
     end
 
     # Test to see if an ABN is valid
@@ -152,6 +166,8 @@ module ABNSearch
       @address_from_date  = body[:main_business_physical_address][:effective_from] rescue nil
       @last_updated       = body[:record_last_updated_date] rescue nil
       @gst_from_date      = body[:goods_and_services_tax][:effective_from] rescue nil
+      @primary_name       = primary_name
+      @secondary_name     = secondary_name
       0
     end
 
