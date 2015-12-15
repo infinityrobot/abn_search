@@ -126,9 +126,8 @@ module ABNSearch
              [:abr_payload_search_results][:response]
       results = body[:search_results_list]
 
-      if results.nil?
-        fail "Exception: #{body[:exception][:exception_description]}"
-      end
+      name_trunc = name.length > 30 ? "#{name[0..30]}..." : name
+      fail "Sorry, no results were found for \"#{name_trunc}\"" if results.nil?
 
       abns = []
       results[:search_results_record].each do |r|
