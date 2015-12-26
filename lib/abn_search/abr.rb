@@ -124,13 +124,13 @@ module ABNSearch
       response = client.call(:abr_search_by_name_advanced2012, message: request)
       body = response.body[:abr_search_by_name_advanced2012_response]\
              [:abr_payload_search_results][:response]
-      results = body[:search_results_list]
+      results = body[:search_results_list][:search_results_record]
 
       name_trunc = name.length > 30 ? "#{name[0..30]}..." : name
       fail "Sorry, no results were found for \"#{name_trunc}\"" if results.nil?
 
       abns = []
-      results[:search_results_record].each do |r|
+      results.each do |r|
         if r[:abn][:identifier_status] == "Active"
           abns << ABNSearch::Entity.new(abr_detail: r).update_from_abr!
         elsif options[:include_cancelled]
