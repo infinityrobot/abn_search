@@ -46,16 +46,16 @@ describe ABNSearch::Entity do
 
       it "should work if you use a real GUID and a real ABN" do
         ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
-        company_name = good_abns.first.update_from_abr!.name
-        expect(company_name).to be_a String
-        expect(company_name.length).to be > 0
+        primary_name = good_abns.first.update_from_abr!.primary_name
+        expect(primary_name).to be_a String
+        expect(primary_name.length).to be > 0
       end
 
       it "should work if you use a real GUID and a real ACN" do
         ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
-        company_name = good_acns.first.update_from_abr_using_acn!.name
-        expect(company_name).to be_a String
-        expect(company_name.length).to be > 0
+        primary_name = good_acns.first.update_from_abr_using_acn!.primary_name
+        expect(primary_name).to be_a String
+        expect(primary_name.length).to be > 0
       end
     end
   end
