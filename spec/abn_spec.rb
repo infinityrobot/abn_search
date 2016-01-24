@@ -57,6 +57,14 @@ describe ABNSearch::Entity do
         expect(primary_name).to be_a String
         expect(primary_name.length).to be > 0
       end
+
+      it "should not return a TypeError if you get only one result" do
+        ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
+        expect do
+          ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
+          ABNSearch::Client.search_by_name("asdf :asdfasdfasdfadsf")
+        end.not_to raise_error
+      end
     end
   end
 
