@@ -125,7 +125,7 @@ module ABNSearch
       body = response.body[:abr_search_by_name_advanced2012_response]\
              [:abr_payload_search_results][:response]
       result_list = body[:search_results_list]
-      result_count = result_list[:number_of_records].to_i
+      result_count = body[:exception] ? 0 : result_list[:number_of_records].to_i
 
       name_trunc = name.length > 30 ? "#{name[0..30]}..." : name
       fail "Sorry, no results found for \"#{name_trunc}\"" if result_count == 0
