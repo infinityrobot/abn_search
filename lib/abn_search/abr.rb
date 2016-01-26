@@ -125,12 +125,13 @@ module ABNSearch
       body = response.body[:abr_search_by_name_advanced2012_response]\
              [:abr_payload_search_results][:response]
       result_list = body[:search_results_list]
-      results = [result_list[:search_results_record]].flatten if result_list
+      result_count = result_list[:number_of_records].to_i
 
       name_trunc = name.length > 30 ? "#{name[0..30]}..." : name
-      fail "Sorry, no results were found for \"#{name_trunc}\"" if results.nil?
+      fail "Sorry, no results found for \"#{name_trunc}\"" if result_count == 0
 
       abns = []
+      results = [result_list[:search_results_record]].flatten
       results.each do |r|
         if r[:abn][:identifier_status] == "Active"
           abns << ABNSearch::Entity.new(abr_detail: r).update_from_abr!
