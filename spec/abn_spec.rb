@@ -65,12 +65,22 @@ describe ABNSearch::Entity do
         end.not_to raise_error
       end
 
-      it "should not return a no method error if you receive an empty array" do
+      it "should return an error if you receive no filtered results" do
         ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
         e = RuntimeError
         expect do
           ABNSearch::Client.search_by_name("Manhatta", max_search_results: 10,
                                                        minimum_score: 90)
+        end.to raise_error(e)
+      end
+
+      it "should return an error if you receive a no result exception" do
+        ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
+        e = RuntimeError
+        expect do
+          ABNSearch::Client.search_by_name("thereshouldbenoresults",
+                                           max_search_results: 10,
+                                           minimum_score: 90)
         end.to raise_error(e)
       end
     end
