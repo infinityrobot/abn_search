@@ -64,6 +64,15 @@ describe ABNSearch::Entity do
           ABNSearch::Client.search_by_name("asdf :asdfasdfasdfadsf")
         end.not_to raise_error
       end
+
+      it "should not return a no method error if you receive an empty array" do
+        ABNSearch::Client.new(ENV["ABN_LOOKUP_GUID"])
+        e = RuntimeError
+        expect do
+          ABNSearch::Client.search_by_name("Manhatta", max_search_results: 10,
+                                                       minimum_score: 90)
+        end.to raise_error(e)
+      end
     end
   end
 
