@@ -37,7 +37,7 @@ module ABNSearch
       @@guid = guid
       @@proxy = options[:proxy] || nil
       @@client_options = { wsdl: ENDPOINT }
-      @@client_options.merge!(proxy: @@proxy) unless @@proxy.nil?
+      @@client_options[:proxy] = @@proxy unless @@proxy.nil?
       self
     end
 
