@@ -66,7 +66,7 @@ module ABNSearch
     # @return [Hash] a hash containing :result & :payload
     def self.search(abn)
       invalid_error = "ABN #{abn} is invalid"
-      fail ArgumentError, invalid_error unless ABNSearch::Entity.valid?(abn)
+      raise ArgumentError, invalid_error unless ABNSearch::Entity.valid?(abn)
       check_guid
 
       client = Savon.client(@@client_options)
@@ -87,7 +87,7 @@ module ABNSearch
     # @param [String] postcode - the postcode you wish to filter by
     # TODO: clean up this method
     def self.search_by_name(name, options = {})
-      fail ArgumentError, "No search string provided" unless name.is_a?(String)
+      raise ArgumentError, "No search string provided" unless name.is_a?(String)
       check_guid
 
       options[:states] ||= %w(NSW QLD VIC SA WA TAS ACT NT)
@@ -128,7 +128,7 @@ module ABNSearch
       result_count = body[:exception] ? 0 : result_list[:number_of_records].to_i
 
       name_trunc = name.length > 30 ? "#{name[0..30]}..." : name
-      fail "Sorry, no results found for \"#{name_trunc}\"" if result_count == 0
+      raise "Sorry, no results found for \"#{name_trunc}\"" if result_count == 0
 
       abns = []
       results = [result_list[:search_results_record]].flatten
@@ -147,7 +147,7 @@ module ABNSearch
     end
 
     def check_guid
-      fail ArgumentError, "No GUID provided." if @@guid.nil?
+      raise ArgumentError, "No GUID provided." if @@guid.nil?
       true
     end
 
