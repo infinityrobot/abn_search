@@ -17,7 +17,7 @@ require "savon"
 
 module ABNSearch
   class Client
-    ENDPOINT = "http://www.abn.business.gov.au/abrxmlsearch/ABRXMLSearch.asmx?WSDL".freeze
+    ENDPOINT = "http://abr.business.gov.au/abrxmlsearch/ABRXMLSearch.asmx?WSDL".freeze
 
     @@errors          = []
     @@guid            = ENV["ABN_LOOKUP_GUID"] || nil
